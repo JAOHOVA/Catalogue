@@ -1,0 +1,178 @@
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css"/>
+<script src="https://kendo.cdn.telerik.com/2023.2.829/js/jquery.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2023.2.829/js/kendo.all.min.js"></script>
+
+<div id="gridDb">
+        [IF boutonValider]
+    <form action="?app=FORMATION&action=REPONSE_AUGMENTATION_TARIFAIRE_CATALOGUE[PARAMETRE]" method="post">    
+        <div class="container">
+            <label for="augmentation">Augmentation en %</label>
+            <input type="number" min="0" step="any" id="augmentation"  class="augmentation" name="augmentation" required/>
+            <label for="arrondirParExces">Arrondir par excès</label>
+            <input type="radio" id="arrondirParExces" name="arrondit" value="exces" checked/>
+            <label for="arrondirParDefaut">Arrondir par défaut</label>
+            <input type="radio" id="arrondirParDefaut" name="arrondit" value="defaut"/>
+        </div>
+        <div class="boutonValider" id="boutonValider">
+            <button type="submit" id="valider">Valider</button>
+        </div>
+        [ENDIF boutonValider]
+        [IF boutonSauvegarder]
+        <div class="carte">
+            <h2>Souhaitez-vous sauvegarder cette modification ?</h2>
+            <div class="sauvegardeAnnuler">
+                <form action="?app=FORMATION&action=SAUVEGARDE_AUGMENTATION_TARIFAIRE_CATALOGUE[PARAMETRES]" method="post">
+                    <div class="sauvegarder">
+                        <button type="submit" id="boutonSauvegarder">Sauvegarder</button>
+                    </div>
+                </form>
+                <div class="annuler">
+                    <button id="boutonAnnuler">Annuler</button>
+                    <input type="hidden" name="id" id="idDoc" value="[VALEUR_ID]">
+                </div>
+            </div>
+        </div>
+        [ENDIF boutonSauvegarder]
+    </form>
+    <h3>Tarif de base : [TARIFBASE]</h3>
+    <p>Sous tarifs :</p>
+    <div id="grid"></div>
+    <script>
+
+        $(document).ready(function() {
+            // Pour le tableau de BD  
+            $("#grid").kendoGrid({
+                dataSource: {
+                    data: [BASE],
+                    pageSize: 10
+                },
+                height: 600,
+                filterable: true,
+                editable: false,
+                pageable: true,
+                columns: [
+                    { field: "cat_ar_tcode", title: "CODE"},
+                    { field: "cat_ar_tinti", title: "INTITULÉ"},
+                    { field: "cat_ar_duree", title: "DURÉE" },
+                    { field: "cat_ar_quantite", title: "QUANTITÉ" },
+                    { field: "cat_ar_ttarif", title: "TARIF" },
+                    { field: "cat_ar_modaliteformprix", title: "MODALITÉS" },
+                    { field: "cat_ar_categolibelle", title: "CATÉGORIE" },
+                    { field: "cat_ar_nbcatego", title: "NOMBRE CATÉGORIE" }
+                ]
+            });
+
+            $("#valider").kendoButton({
+                themeColor: "info",
+                rounded: "medium",
+                size: "medium",
+                fillMode: "solid"
+            });
+
+            $("#boutonAnnuler").click(function() {
+                // Récupérer la valeur de l'input hidden
+                var id = $('#idDoc').val();
+                // URL de base à laquelle vous souhaitez ajouter la valeur
+                var baseUrl = '?app=FORMATION&action=AUGMENTATION_TARIFAIRE_CATALOGUE';
+                // Ajouter la valeur de l'input hidden à l'URL
+                var urlAvecValeur = baseUrl + '&id=' + encodeURIComponent(id);
+                // Rediriger vers la nouvelle URL avec la valeur ajoutée
+                window.location.href = urlAvecValeur;
+            });
+
+            // Pour cacher le tableau de données en plus dans la base s'il est vide
+            // Récupérer l'élément de tableau Kendo UI
+            let grid = $("#grid").data("kendoGrid");
+            // Vérifier si le tableau est vide
+            if (grid.dataSource.data().length === 0) {
+            // Le tableau est vide, masquer le tableau
+            $("#grid").hide(); // Cacher le tableau
+            $('p').hide();
+            } else {
+            // Le tableau n'est pas vide, afficher le tableau
+            $("#grid").show(); // Afficher le tableau
+            }
+
+        });
+        
+    </script>
+    <style>
+        #gridDb {
+            margin: 50px 50px;
+        }
+        /*#grid {
+            margin: 50px 0px;
+        }*/
+        .container {
+            margin-top: 20px;
+            display: flex;
+            margin-bottom: 10px;
+        }
+        input, label {
+            margin-right: 10px; /* Espacement entre les champs */
+        }
+        .boutonValider {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carte {
+            width: 300px;
+            background-color: ##f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: 0 auto;
+        }
+        .sauvegardeAnnuler {
+            display: flex;
+            justify-content: center;
+            margin-top: 27px;
+            flex-direction: row-reverse;
+        }
+        #boutonSauvegarder, #valider {
+            border-color: #0058e9;
+            color: white;
+            cursor: pointer;
+            background-color: #0058e9;
+            background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.02));
+            padding-block: 4px;
+            padding-inline: 8px;
+            font-size: 14px;
+            line-height: 1.4285714286;
+            box-sizing: border-box;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 5px;
+            outline: none;
+        }
+        #boutonAnnuler {
+            border-color: #f31700;
+            color: white;
+            cursor: pointer;
+            background-color: #f31700;
+            background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.02));
+            padding-block: 4px;
+            padding-inline: 8px;
+            font-size: 14px;
+            line-height: 1.4285714286;
+            box-sizing: border-box;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 5px;
+            outline: none;
+        }
+        #boutonSauvegarder:hover,
+        #boutonAnnuler:hover {
+            background-color: #e0e0e0;
+        }
+        .sauvegarder,.annuler {
+            margin: 0px 5px 16px 5px;
+        }
+        h3 {
+            font-weight: normal;
+        }
+    </style>
+</div>
